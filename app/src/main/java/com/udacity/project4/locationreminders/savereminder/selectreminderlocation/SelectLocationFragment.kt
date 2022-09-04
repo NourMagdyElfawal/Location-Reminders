@@ -9,9 +9,11 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -37,6 +39,8 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private val longitude = -122.084270
     private val homeLatLng = LatLng(latitude, longitude)
     private lateinit var lastKnownLocation: Location
+    private lateinit var poiMarker: Marker
+
 
 
     //Use Koin to get the view model of the SaveReminder
@@ -78,6 +82,14 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
+        if (this::poiMarker.isInitialized) {
+            _viewModel.latitude.value = poiMarker.position.latitude
+            _viewModel.longitude.value = poiMarker.position.longitude
+            _viewModel.reminderSelectedLocationStr.value = poiMarker.title
+            findNavController().popBackStack()
+        }else{
+            Toast.makeText(context,"no location selected",Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -203,7 +215,8 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     //to show the place details
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
-            val poiMarker = map.addMarker(
+            map.clear()
+             poiMarker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
                     .title(poi.name)
@@ -216,21 +229,23 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private fun setMapLongClick(map: GoogleMap) {
         map.setOnMapLongClickListener { latLng ->
             // A Snippet is Additional text that's displayed below the title.
+            map.clear()
             val snippet = String.format(
                 Locale.getDefault(),
                 "Lat: %1$.5f, Long: %2$.5f",
                 latLng.latitude,
                 latLng.longitude
             )
-            map.addMarker(
+            poiMarker=map.addMarker(
                 MarkerOptions()
                     .position(latLng)
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-
-
             )
+
+            poiMarker.showInfoWindow()
+
         }
 
     }
