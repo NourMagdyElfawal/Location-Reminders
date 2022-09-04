@@ -2,8 +2,6 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -14,7 +12,6 @@ import android.view.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,7 +22,6 @@ import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
-import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
@@ -34,7 +30,7 @@ import java.util.*
 
 class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
-    private lateinit var map: GoogleMap
+    private  var map: GoogleMap? = null
     private val REQUEST_LOCATION_PERMISSION = 1
     private val zoomLevel=15f
     private val latitude = 37.422160
@@ -57,6 +53,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         binding.lifecycleOwner = this
 
 
+        checkDeviceLocationSettingsAndStartGeofence()
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
@@ -91,19 +88,19 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_NORMAL
+            map!!.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_HYBRID
+            map!!.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            map!!.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
-            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+            map!!.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -111,14 +108,14 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         System.err.println("OnMapReady start")
-        map=googleMap
-        map.addMarker(MarkerOptions().position(homeLatLng).title("marker"))
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
 
-        setMapLongClick(map)
-        setPoiClick(map)
-        setMapStyle(map)
-        enableMyLocation()
+        googleMap.addMarker(MarkerOptions().position(homeLatLng).title("marker"))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
+
+        setMapLongClick(googleMap)
+        setPoiClick(googleMap)
+        setMapStyle(googleMap)
+        enableMyLocation(googleMap)
 
     }
     private fun isPermissionGranted() : Boolean {
@@ -127,9 +124,11 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun enableMyLocation() {
+    private fun enableMyLocation(map: GoogleMap) {
         val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
         if (isPermissionGranted()) {
+            Log.d("TAG", "isPermissionGranted")
+
             if (ActivityCompat.checkSelfPermission(
                     context!!,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -154,7 +153,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                     // Set the map's camera position to the current location of the device.
                     if (task.result != null) {
                         lastKnownLocation = task.result!!
-                        map?.moveCamera(
+                        map.moveCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 LatLng(
                                     lastKnownLocation!!.latitude,
@@ -167,15 +166,16 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                 } else {
                     Log.d("TAG", "Current location is null. Using defaults.")
                     Log.e("TAG", "Exception: %s", task.exception)
-                    map?.moveCamera(
+                    map.moveCamera(
                         CameraUpdateFactory
                             .newLatLngZoom(homeLatLng, zoomLevel.toFloat())
                     )
-                    map?.uiSettings?.isMyLocationButtonEnabled = false
+                    map.uiSettings?.isMyLocationButtonEnabled = false
                 }
             }
 
         } else {
+            Log.d("TAG", "isPermissionNotGranted")
             ActivityCompat.requestPermissions(
                 activity!!,
                 arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -187,14 +187,18 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray) {
+        Log.d("TAG", "onRequestPermissionResult")
+
         // Check if location permissions are granted and if so enable the
         // location data layer.
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
+//        checkDeviceLocationSettingsAndStartGeofence()
+                map?.let { enableMyLocation(it) }
             }
         }
     }
+
 
     //to show the place details
     private fun setPoiClick(map: GoogleMap) {
@@ -251,5 +255,38 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     }
 
 
+    private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true) {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val settingsClient = LocationServices.getSettingsClient(context!!)
+        val locationSettingsResponseTask =
+            settingsClient.checkLocationSettings(builder.build())
+        locationSettingsResponseTask.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException && resolve){
+                try {
+                    exception.startResolutionForResult(
+                        activity!!,
+                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.d("TAG", "Error getting location settings resolution: " + sendEx.message)
+                }
+            } else {
+                Snackbar.make(
+                    binding.selectLocationFragment,
+                    R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                ).setAction(android.R.string.ok) {
+                    checkDeviceLocationSettingsAndStartGeofence()
+                }.show()
+            }
+        }
+        locationSettingsResponseTask.addOnCompleteListener {
+            if ( it.isSuccessful ) {
+                map?.let { it1 -> enableMyLocation(it1) }
+            }
+        }
+    }
 
 }
+private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
