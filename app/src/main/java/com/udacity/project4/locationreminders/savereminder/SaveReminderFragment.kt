@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -251,26 +252,10 @@ class SaveReminderFragment : BaseFragment() {
                             }
                         }
                     }
-                    _viewModel.onClear()
 
         }
     }
 
-    private fun removeGeofences() {
-        if (!foregroundAndBackgroundLocationPermissionApproved()) {
-            return
-        }
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnSuccessListener {
-                Log.d("TAG", getString(R.string.geofences_removed))
-                Toast.makeText(context, R.string.geofences_removed, Toast.LENGTH_SHORT)
-                    .show()
-            }
-            addOnFailureListener {
-                Log.d("TAG", getString(R.string.geofences_not_removed))
-            }
-        }
-    }
 
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =
@@ -279,9 +264,9 @@ class SaveReminderFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+
         //make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
-        removeGeofences()
     }
 }
 
