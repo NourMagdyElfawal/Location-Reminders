@@ -75,7 +75,7 @@ class SaveReminderFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
-        geofencingClient = LocationServices.getGeofencingClient(context!!)
+        geofencingClient = LocationServices.getGeofencingClient(requireContext())
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
             _viewModel.navigationCommand.value =
@@ -115,13 +115,13 @@ class SaveReminderFragment : BaseFragment() {
         val foregroundLocationApproved = (
                 PackageManager.PERMISSION_GRANTED ==
                         ActivityCompat.checkSelfPermission(
-                            context!!,
+                            requireContext(),
                             Manifest.permission.ACCESS_FINE_LOCATION))
         val backgroundPermissionApproved =
             if (runningQOrLater) {
                 PackageManager.PERMISSION_GRANTED ==
                         ActivityCompat.checkSelfPermission(
-                            context!!, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                            requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
                         )
             } else {
                 true
@@ -143,7 +143,7 @@ class SaveReminderFragment : BaseFragment() {
         }
         Log.d("TAG", "Request foreground only location permission")
         ActivityCompat.requestPermissions(
-            activity!!,
+            requireActivity(),
             permissionsArray,
             resultCode
         )
@@ -185,13 +185,13 @@ class SaveReminderFragment : BaseFragment() {
             priority = LocationRequest.PRIORITY_LOW_POWER
         }
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-        val settingsClient = LocationServices.getSettingsClient(activity!!)
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
         val locationSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
         locationSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve){
                 try {
-                    exception.startResolutionForResult(activity!!,
+                    exception.startResolutionForResult(requireActivity(),
                         REQUEST_TURN_DEVICE_LOCATION_ON)
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d("TAG", "Error getting location settings resolution: " + sendEx.message)

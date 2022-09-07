@@ -43,6 +43,5 @@ class ReminderDescriptionActivity : AppCompatActivity() {
                 }
             }
         }
-//        TODO: Add the implementation of the reminder details
     }
 }
