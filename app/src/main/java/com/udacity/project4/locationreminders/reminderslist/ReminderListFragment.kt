@@ -2,8 +2,10 @@ package com.udacity.project4.locationreminders.reminderslist
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
@@ -29,6 +31,26 @@ class ReminderListFragment : BaseFragment() {
                 R.layout.fragment_reminders, container, false
             )
         binding.viewModel = _viewModel
+
+
+        _viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
+            when (authenticationState) {
+                RemindersListViewModel.AuthenticationState.AUTHENTICATED -> Log.i("TAG", "Authenticated")
+                // If the user is not logged in, they should not be able to set any preferences,
+                // so navigate them to the login fragment
+                RemindersListViewModel.AuthenticationState.UNAUTHENTICATED ->
+                //transition from fragment to activity
+                    requireActivity().run {
+                        startActivity(Intent(this, AuthenticationActivity::class.java))
+                        finish()
+                    }
+                    else -> Log.e(
+                    "TAG", "New $authenticationState state that doesn't require any UI change"
+                )
+            }
+        })
+
+
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(false)
