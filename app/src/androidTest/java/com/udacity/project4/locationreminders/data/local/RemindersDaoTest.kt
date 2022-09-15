@@ -114,5 +114,21 @@ fun insertReminder()= runBlockingTest {
         val reminder = dao.getReminderById("1")
         assertThat(allReminder).contains(reminder)
     }
+    @Test
+    fun getReminderByIdNotExist_returnNull()= runBlockingTest {
+        val reminderDTO = ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-430..350).random().toDouble(),
+            (-230..640).random().toDouble(),
+            id = "1"
+        )
+        dao.saveReminder(reminderDTO)
+        val allReminder = dao.getReminders()
+        val reminder = dao.getReminderById("2")
+        val boolean=allReminder.contains(reminder)
+        assertThat(boolean).isFalse()
+    }
 
 }
