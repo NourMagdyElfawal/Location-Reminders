@@ -66,17 +66,53 @@ fun insertReminder()= runBlockingTest {
 
 }
 
+    @Test
+    fun deleteAllReminders()= runBlockingTest {
+        val reminderDTO1=ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-430..350).random().toDouble(),
+            (-230..640).random().toDouble()
+        )
+        val reminderDTO2=ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-430..350).random().toDouble(),
+            (-230..640).random().toDouble()
+        )
+        val reminderDTO3=ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-430..350).random().toDouble(),
+            (-230..640).random().toDouble()
+        )
 
+        dao.saveReminder(reminderDTO1)
+        dao.saveReminder(reminderDTO2)
+        dao.saveReminder(reminderDTO3)
 
+        dao.deleteAllReminders()
+        val allReminder=dao.getReminders()
+        assertThat(allReminder).isEmpty()
 
-
-
-
-
-
-
-
-
-
+    }
+    @Test
+    fun getReminderById()= runBlockingTest {
+        val reminderDTO = ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-430..350).random().toDouble(),
+            (-230..640).random().toDouble(),
+            id = "1"
+        )
+        dao.saveReminder(reminderDTO)
+        val allReminder = dao.getReminders()
+        val reminder = dao.getReminderById("1")
+        assertThat(allReminder).contains(reminder)
+    }
 
 }
