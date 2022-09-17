@@ -65,7 +65,7 @@ class RemindersListViewModelTest {
     @Config(sdk = [28])
     @Test
     fun check_loading() {
-        fakeDataSource = FakeDataSource(mutableListOf())
+        fakeDataSource = FakeDataSource()
         reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
         mainCoroutineRule.pauseDispatcher()
         reminderListViewModel.loadReminders()
