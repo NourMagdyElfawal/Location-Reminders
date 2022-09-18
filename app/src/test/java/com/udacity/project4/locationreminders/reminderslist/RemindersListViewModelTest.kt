@@ -3,6 +3,7 @@ package com.udacity.project4.locationreminders.reminderslist
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.firebase.FirebaseApp
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -11,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +50,6 @@ class RemindersListViewModelTest {
     private val reminder2 = list[1]
     private val reminder3 = list[2]
 
-    private lateinit var fakeDataSource: FakeDataSource
     private lateinit var reminderListViewModel: RemindersListViewModel
 
     //TODO: provide testing to the RemindersListViewModel and its live data objects
@@ -58,6 +59,11 @@ class RemindersListViewModelTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    @Before
+    fun setUp(){
+        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), FakeDataSource())
+    }
+
     @After
     fun tearDown() {
         stopKoin()
@@ -65,8 +71,6 @@ class RemindersListViewModelTest {
     @Config(sdk = [28])
     @Test
     fun check_loading() {
-        fakeDataSource = FakeDataSource()
-        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
         mainCoroutineRule.pauseDispatcher()
         reminderListViewModel.loadReminders()
         assertThat(

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
+import com.google.firebase.FirebaseApp
 import com.udacity.project4.R
 import kotlinx.android.synthetic.main.activity_reminders.*
 

@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +33,11 @@ class SaveReminderViewModelTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    @Before
+    fun setUp(){
+        saveReminderViewModel =
+            SaveReminderViewModel(ApplicationProvider.getApplicationContext(),FakeDataSource())
+    }
 
     @After
     fun tearDown() {
@@ -43,7 +49,6 @@ class SaveReminderViewModelTest {
     fun check_loading_Returns_True () {
         // Given a fresh SaveReminderViewModelTest
         //to stop coroutine we will use pauseDispatcher because we want to check loading only
-        saveReminderViewModel = SaveReminderViewModel(ApplicationProvider.getApplicationContext(),FakeDataSource())
         mainCoroutineRule.pauseDispatcher()
         saveReminderViewModel.validateAndSaveReminder(
                     ReminderDataItem(
@@ -54,7 +59,7 @@ class SaveReminderViewModelTest {
                         (-230..640).random().toDouble()
                     )
                 )
-        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(true))
+
         assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(true))
 
     }
@@ -64,7 +69,6 @@ class SaveReminderViewModelTest {
     @Config(sdk = [28])
     @Test
     fun empty_location_returns_false () {
-        saveReminderViewModel = SaveReminderViewModel(ApplicationProvider.getApplicationContext(),FakeDataSource())
         val result=saveReminderViewModel.validateEnteredData(
             ReminderDataItem(
                 "title",
@@ -79,7 +83,6 @@ class SaveReminderViewModelTest {
     @Config(sdk = [28])
     @Test
     fun  empty_title_returns_false () {
-        saveReminderViewModel = SaveReminderViewModel(ApplicationProvider.getApplicationContext(),FakeDataSource())
         val result=saveReminderViewModel.validateEnteredData(
             ReminderDataItem(
                 "",

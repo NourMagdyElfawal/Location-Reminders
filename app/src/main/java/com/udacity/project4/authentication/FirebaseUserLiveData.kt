@@ -1,17 +1,20 @@
 package com.udacity.project4.authentication
 
+import android.app.Application
 import androidx.lifecycle.LiveData
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.withContext
 
-class FirebaseUserLiveData : LiveData<FirebaseUser?>() {
-    private val firebaseAuth = FirebaseAuth.getInstance()
+class FirebaseUserLiveData(app: Application) : LiveData<FirebaseUser?>() {
 
     // TODO set the value of this FireUserLiveData object by hooking it up to equal the value of the
     //  current FirebaseUser. You can utilize the FirebaseAuth.AuthStateListener callback to get
     //  updates on the current Firebase user logged into the app.
-    private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-        value = firebaseAuth.currentUser
+    private val authStateListener = FirebaseAuth.AuthStateListener {
+        FirebaseApp.initializeApp(app)
+        value = FirebaseAuth.getInstance().currentUser
 
         // TODO Use the FirebaseAuth instance instantiated at the beginning of the class to get an
         //  entry point into the Firebase Authentication SDK the app is using.
@@ -21,12 +24,12 @@ class FirebaseUserLiveData : LiveData<FirebaseUser?>() {
     // When this object has an active observer, start observing the FirebaseAuth state to see if
     // there is currently a logged in user.
     override fun onActive() {
-        firebaseAuth.addAuthStateListener(authStateListener)
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
     }
 
     // When this object no longer has an active observer, stop observing the FirebaseAuth state to
     // prevent memory leaks.
     override fun onInactive() {
-        firebaseAuth.removeAuthStateListener(authStateListener)
+        FirebaseAuth.getInstance().removeAuthStateListener(authStateListener)
     }
 }

@@ -19,7 +19,7 @@ class FakeDataSource : ReminderDataSource {
 //            return Result.Success(it)
 //        }
 //        return Result.Error("Error")
-        return if (reminderDTOList==null||reminderDTOList.isEmpty()){
+        return if (reminderDTOList.isEmpty()){
                 Result.Error("Error")
         }else{
             return Result.Success(reminderDTOList)

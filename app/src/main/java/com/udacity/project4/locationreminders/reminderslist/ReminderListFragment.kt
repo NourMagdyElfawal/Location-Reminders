@@ -7,6 +7,7 @@ import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
+import com.google.firebase.FirebaseApp
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
@@ -25,13 +26,14 @@ class ReminderListFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+
         binding =
             DataBindingUtil.inflate(
                 inflater,
                 R.layout.fragment_reminders, container, false
             )
         binding.viewModel = _viewModel
-
 
         _viewModel.authenticationState.observe(viewLifecycleOwner, Observer { authenticationState ->
             when (authenticationState) {

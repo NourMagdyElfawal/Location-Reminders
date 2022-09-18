@@ -52,23 +52,23 @@ class RemindersListViewModel(
             invalidateShowNoData()
         }
     }
-
-    enum class AuthenticationState {
-        AUTHENTICATED, UNAUTHENTICATED, INVALID_AUTHENTICATION
-    }
-
-    val authenticationState = FirebaseUserLiveData().map { user ->
-        if (user != null) {
-            AuthenticationState.AUTHENTICATED
-        } else {
-            AuthenticationState.UNAUTHENTICATED
-        }
-    }
-
     /**
      * Inform the user that there's not any data if the remindersList is empty
      */
     private fun invalidateShowNoData() {
         showNoData.value = remindersList.value == null || remindersList.value!!.isEmpty()
     }
+
+    enum class AuthenticationState {
+        AUTHENTICATED, UNAUTHENTICATED, INVALID_AUTHENTICATION
+    }
+    val authenticationState=
+        FirebaseUserLiveData(app).map {
+            if (it != null) {
+                AuthenticationState.AUTHENTICATED
+            } else {
+                AuthenticationState.UNAUTHENTICATED
+            }
+        }
+
 }
