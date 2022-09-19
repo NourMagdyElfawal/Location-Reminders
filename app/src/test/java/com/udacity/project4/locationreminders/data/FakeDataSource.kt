@@ -2,12 +2,15 @@ package com.udacity.project4.locationreminders.data
 
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.local.RemindersDao
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
-class FakeDataSource : ReminderDataSource {
-    private var reminderDTOList= mutableListOf<ReminderDTO>()
+class FakeDataSource(private var reminderDTOList: MutableList<ReminderDTO> = mutableListOf()) : ReminderDataSource {
 
     private var shouldReturnError=false
+//    private var reminderDTOList= mutableListOf<ReminderDTO>()
 
     fun setShouldReturnError(value:Boolean){
         shouldReturnError=value
@@ -15,10 +18,6 @@ class FakeDataSource : ReminderDataSource {
 //    TODO: Create a fake data source to act as a double to the real data source
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-//        reminderDTOList?.let {
-//            return Result.Success(it)
-//        }
-//        return Result.Error("Error")
         return if (reminderDTOList.isEmpty()){
                 Result.Error("Error")
         }else{
@@ -40,14 +39,6 @@ class FakeDataSource : ReminderDataSource {
         }else{
             return Result.Error("Error")
         }
-//        reminderDTOList.firstOrNull {
-//            it.id == id
-//        }
-//            ?.let {
-//                return Result.Success(it)
-//            }
-//                return Result.Error("Error")
-//
     }
 
     override suspend fun deleteAllReminders() {
