@@ -180,7 +180,20 @@ fun testNavigationToSaveReminderFragment() {
     }
 
 //    TODO: add testing for the error messages (snackbar)
+    //we use  runBlockingTest because its suspend function
+@Test
+fun snackbarNoDataError()= runBlockingTest {
+    fakeRepository.deleteAllReminders()
 
+    // WHEN - ReminderList fragment launched to display task
+    launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
+
+    onView(withText("Error"))
+        .check(matches(isDisplayed()))
+
+
+
+}
 
 
 }
