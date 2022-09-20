@@ -23,7 +23,7 @@
             android:padding="@dimen/padding_medium">
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/titleTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_small"
@@ -36,13 +36,13 @@
                 tools:text="Title" />
 
             <TextView
-                android:id="@+id/description"
+                android:id="@+id/descriptionTV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{item.description}"
                 android:textSize="@dimen/text_size_small"
-                app:layout_constraintStart_toStartOf="@id/title"
-                app:layout_constraintTop_toBottomOf="@id/title"
+                app:layout_constraintStart_toStartOf="@id/titleTV"
+                app:layout_constraintTop_toBottomOf="@id/titleTV"
                 tools:text="Description" />
 
             <TextView
@@ -52,9 +52,9 @@
                 android:text="@{item.location}"
                 android:textColor="@color/colorAccent"
                 android:textSize="@dimen/text_size_small"
-                app:layout_constraintBottom_toBottomOf="@+id/description"
+                app:layout_constraintBottom_toBottomOf="@+id/descriptionTV"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/title"
+                app:layout_constraintTop_toTopOf="@+id/titleTV"
                 tools:text="Location" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
