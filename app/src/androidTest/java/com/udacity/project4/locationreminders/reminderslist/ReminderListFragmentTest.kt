@@ -184,6 +184,7 @@ fun testNavigationToSaveReminderFragment() {
 @Test
 fun snackbarNoDataError()= runBlockingTest {
     fakeRepository.deleteAllReminders()
+    val errorMessage = (fakeRepository.getReminders() as? Result.Error)?.message
 
     // WHEN - ReminderList fragment launched to display task
     launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
