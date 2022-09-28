@@ -21,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
@@ -50,8 +51,8 @@ class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
-    private val runningROrLater = android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.R
+    private val runningROrLater = Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.R
     private lateinit var reminderDataItem: ReminderDataItem
     private lateinit var geofencingClient: GeofencingClient
 
@@ -246,7 +247,7 @@ class SaveReminderFragment : BaseFragment() {
                     reminderDataItem.longitude!!,
                     GEOFENCE_RADIUS_IN_METERS
                 )
-                .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                 .build()
 
@@ -260,8 +261,7 @@ class SaveReminderFragment : BaseFragment() {
                         }
                         addOnFailureListener {
                             // Failed to add geofences.
-                            Toast.makeText(
-                                requireContext(), R.string.geofences_not_added,
+                            Toast.makeText(ApplicationProvider.getApplicationContext(), R.string.geofences_not_added,
                                 Toast.LENGTH_SHORT
                             ).show()
                             if ((it.message != null)) {
