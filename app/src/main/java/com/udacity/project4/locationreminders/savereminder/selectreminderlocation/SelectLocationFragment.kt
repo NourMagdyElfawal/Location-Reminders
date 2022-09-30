@@ -46,7 +46,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private lateinit var lastKnownLocation: Location
     private lateinit var poiMarker: Marker
     private val runningROrLater = Build.VERSION.SDK_INT >=
-            Build.VERSION_CODES.R
+            Build.VERSION_CODES.Q
 
 
 
@@ -299,7 +299,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
                             // Set the map's camera position to the current location of the device.
                             if (location.result != null) {
-                                lastKnownLocation = location.result
+                                lastKnownLocation = location.result!!
                                 Log.d("TAG", "task.result")
                                 map!!.moveCamera(
                                     CameraUpdateFactory.newLatLngZoom(

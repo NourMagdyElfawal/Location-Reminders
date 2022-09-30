@@ -7,10 +7,10 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.firebase.FirebaseApp
 import com.udacity.project4.R
-import kotlinx.android.synthetic.main.activity_reminders.*
 
 /**
  * The RemindersActivity that holds the reminders fragments
@@ -26,7 +26,7 @@ class RemindersActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                (nav_host_fragment as NavHostFragment).navController.popBackStack()
+                (findNavController(R.id.nav_host_fragment).popBackStack())
                 return true
             }
         }

@@ -52,7 +52,7 @@ class SaveReminderFragment : BaseFragment() {
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
     private val runningROrLater = Build.VERSION.SDK_INT >=
-            Build.VERSION_CODES.R
+            Build.VERSION_CODES.Q
     private lateinit var reminderDataItem: ReminderDataItem
     private lateinit var geofencingClient: GeofencingClient
 
