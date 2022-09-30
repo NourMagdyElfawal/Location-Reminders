@@ -1,4 +1,4 @@
-package com.udacity.project4
+package com.udacity.project4.locationreminders.data
 
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -20,6 +20,9 @@ class FakeDataSource(private var reminderDTOList: MutableList<ReminderDTO> = mut
 //    TODO: Create a fake data source to act as a double to the real data source
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+        if(shouldReturnError){
+            return Result.Error("Error")
+        }
         return if (reminderDTOList.isEmpty()){
                 Result.Error("Error")
         }else{
@@ -33,13 +36,19 @@ class FakeDataSource(private var reminderDTOList: MutableList<ReminderDTO> = mut
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-       val reminderDTO=reminderDTOList.firstOrNull{
+        return if (shouldReturnError){
+            Result.Error("Error")
+        } else {
+
+            val reminderDTO=reminderDTOList.firstOrNull{
             it.id==id
         }
         if (reminderDTO!=null){
             return Result.Success(reminderDTO)
         }else{
             return Result.Error("Error")
+        }
+
         }
     }
 
