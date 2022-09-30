@@ -9,6 +9,7 @@ import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -21,14 +22,14 @@ import org.robolectric.annotation.Config
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
 
-
-    val reminderDTOList = listOf<ReminderDTO>(
-        ReminderDTO("title", "description", "location", (-430..150).random().toDouble(),
-            (-230..640).random().toDouble()),
-        ReminderDTO("title", "description", "location", (-430..150).random().toDouble(),
+    private val reminderDTOList = mutableListOf<ReminderDTO>()
+    private val reminder1 = ReminderDTO("title", "description", "location", (-430..150).random().toDouble()
+            ,(-230..640).random().toDouble())
+    private val reminder2 = ReminderDTO("title", "description", "location", (-430..150).random().toDouble(),
             (-230..640).random().toDouble())
-    )
+
     private lateinit var reminderListViewModel: RemindersListViewModel
+    private lateinit var fakeDataSource: FakeDataSource
     //TODO: provide testing to the RemindersListViewModel and its live data objects
     //to make sure we will run everything in the same thread
     @get:Rule
@@ -39,7 +40,8 @@ class RemindersListViewModelTest {
 
     @Before
     fun setUp(){
-//        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), FakeDataSource())
+        fakeDataSource = FakeDataSource(reminderDTOList)
+        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), FakeDataSource())
     }
 
     @After
@@ -48,11 +50,14 @@ class RemindersListViewModelTest {
     }
     @Config(sdk = [28])
     @Test
-    fun check_loading() {
-        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), FakeDataSource(mutableListOf()))
+    fun check_loading()  = mainCoroutineRule.runBlockingTest{
+         reminderDTOList.add(reminder1)
+         reminderDTOList.add(reminder2)
         mainCoroutineRule.pauseDispatcher()
         reminderListViewModel.loadReminders()
         assertThat(reminderListViewModel.showLoading.getOrAwaitValue()).isTrue()
+        mainCoroutineRule.resumeDispatcher()
+        assertThat(reminderListViewModel.showLoading.getOrAwaitValue()).isFalse()
 
     }
 
@@ -63,20 +68,16 @@ class RemindersListViewModelTest {
         reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(),
             FakeDataSource(emptyList<ReminderDTO>().toMutableList()))
         reminderListViewModel.loadReminders()
-        assertThat(reminderListViewModel.showSnackBar.getOrAwaitValue()).isEqualTo("Error")
+        assertThat(reminderListViewModel.showNoData.getOrAwaitValue()).isTrue()
 
     }
 
 
-
-    @Config(sdk = [28])
     @Test
-     fun get_reminder_List_shouldReturnList() {
-        reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(),
-            FakeDataSource(reminderDTOList as MutableList<ReminderDTO>))
+    fun get_reminders_returnErrorMessage(){
+        fakeDataSource.setShouldReturnError(true)
         reminderListViewModel.loadReminders()
-        assertThat(reminderListViewModel.remindersList.getOrAwaitValue()).isNotEmpty()
-
+        assertThat(reminderListViewModel.showSnackBar.value).isEqualTo("Error")
     }
 
 }
