@@ -51,7 +51,7 @@ class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
-    private val runningROrLater = Build.VERSION.SDK_INT >=
+    private val runningQOrLater = Build.VERSION.SDK_INT >=
             Build.VERSION_CODES.Q
     private lateinit var reminderDataItem: ReminderDataItem
     private lateinit var geofencingClient: GeofencingClient
@@ -115,7 +115,7 @@ class SaveReminderFragment : BaseFragment() {
         ) == PackageManager.PERMISSION_GRANTED
     ) {
         //fine location is granted
-        if (runningROrLater) {
+        if (runningQOrLater) {
 //                ask for background permission
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
@@ -146,7 +146,7 @@ class SaveReminderFragment : BaseFragment() {
         if (isGranted) {
             // Do if the permission is granted
             Log.d("TAG", "ACCESS_FINE_LOCATION isGranted")
-            if(runningROrLater) {
+            if(runningQOrLater) {
                 checkPermissionsAndStartGeofencing()
             }else{
                 checkDeviceLocationSettingsAndStartGeofence()

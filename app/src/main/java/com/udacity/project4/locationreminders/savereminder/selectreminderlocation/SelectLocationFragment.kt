@@ -358,22 +358,8 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            //fine location is granted
-            if (runningROrLater) {
-//                ask for background permission
-                if (ContextCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
                     // Background Location Permission is granted so do your work here
                     checkDeviceLocationSettingsAndStartGeofence()
-                } else {
-                    // Ask for Background Location Permission
-                    askPermissionForBackgroundUsage()
-
-                }
-            }
 
         } else {
             // Fine Location Permission is not granted so ask for permission
@@ -407,32 +393,6 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             }.show()
 
 
-        }
-    }
-    private fun askPermissionForBackgroundUsage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            backgroundPermissionLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-
-    }
-
-    val backgroundPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission())
-    { isGranted ->
-        if (isGranted) {
-            // Do if the permission is granted
-            Log.d("TAG", "ACCESS_BACKGROUND_LOCATION isGranted")
-            checkDeviceLocationSettingsAndStartGeofence()
-
-        } else {
-            // Do otherwise
-            Log.d("TAG", "ACCESS_BACKGROUND_LOCATION isNotGranted")
-            Snackbar.make(
-                binding.selectLocationFragment,
-                R.string.permission_denied_explanation, Snackbar.LENGTH_INDEFINITE
-            ).setAction(android.R.string.ok) {
-                askPermissionForBackgroundUsage()
-            }.show()
         }
     }
 

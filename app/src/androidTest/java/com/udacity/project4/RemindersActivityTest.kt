@@ -100,18 +100,18 @@ class RemindersActivityTest :
     }
 
     // get activity context
-    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+    private fun getActivity(reminderActivityScenario: ActivityScenario<RemindersActivity>): Activity? {
         var activity: Activity? = null
-        activityScenario.onActivity {
-            activity = it
+        reminderActivityScenario.onActivity {remindersActivity->
+            activity = remindersActivity
         }
         return activity
     }
 
     @Test
     fun addReminderSavesReminder_showsSuccessToast() = runBlocking{
-        val activityScenario = launchActivity<RemindersActivity>()
-        dataBindingIdlingResource.monitorActivity(activityScenario)
+        val reminderActivityScenario = launchActivity<RemindersActivity>()
+        dataBindingIdlingResource.monitorActivity(reminderActivityScenario)
 
         onView(withId(R.id.addReminderFAB)).perform(click())
         val reminder = ReminderDTO("title", "description", "location", 360.0, 360.0)
@@ -131,10 +131,11 @@ class RemindersActivityTest :
         onView(withId(R.id.saveReminder)).perform(click())
 
         // Check that the toast
-        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not((getActivity(activityScenario)?.
+        onView(withText(R.string.reminder_saved)).
+        inRoot(withDecorView(not((getActivity(reminderActivityScenario)?.
         window?.decorView)))).check(matches(isDisplayed()))
 
-        activityScenario.close()
+        reminderActivityScenario.close()
     }
 }
 
@@ -149,126 +150,3 @@ class RemindersActivityTest :
 
 
 
-//package com.udacity.project4
-//
-//import android.app.Application
-//import android.app.Instrumentation
-//import android.app.PendingIntent.getActivity
-//import androidx.test.core.app.ApplicationProvider.getApplicationContext
-//import androidx.test.espresso.Espresso.onView
-//import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-//import androidx.test.espresso.assertion.ViewAssertions.matches
-//import androidx.test.espresso.matcher.RootMatchers.isFocusable
-//import androidx.test.espresso.matcher.RootMatchers.withDecorView
-//import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-//import androidx.test.espresso.matcher.ViewMatchers.withText
-//import androidx.test.filters.LargeTest
-//import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
-//import androidx.test.rule.ActivityTestRule
-//import androidx.test.runner.AndroidJUnit4
-//import com.udacity.project4.locationreminders.RemindersActivity
-//import com.udacity.project4.locationreminders.data.ReminderDataSource
-//import com.udacity.project4.locationreminders.data.local.LocalDB
-//import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-//import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
-//import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-//import kotlinx.coroutines.runBlocking
-//import org.junit.Before
-//import org.junit.Rule
-//import org.junit.Test
-//import org.junit.runner.RunWith
-//import org.koin.androidx.viewmodel.dsl.viewModel
-//import org.koin.core.context.startKoin
-//import org.koin.core.context.stopKoin
-//import org.koin.dsl.module
-//import org.koin.test.AutoCloseKoinTest
-//import org.koin.test.get
-//import org.hamcrest.Matchers.not
-//
-//
-//@RunWith(AndroidJUnit4::class)
-//
-//@LargeTest
-////END TO END test to black box test the app
-//class RemindersActivityTest :
-//    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
-//
-//    private lateinit var repository: ReminderDataSource
-//    private lateinit var appContext: Application
-//
-//    /**
-//     * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
-//     * at this step we will initialize Koin related code to be able to use it in out testing.
-//     */
-//    @Before
-//    fun init() {
-//        stopKoin()//stop the original app koin
-//        appContext = getApplicationContext()
-//        val myModule = module {
-//            viewModel {
-//                RemindersListViewModel(
-//                    appContext,
-//                    get() as ReminderDataSource
-//                )
-//            }
-//            single {
-//                SaveReminderViewModel(
-//                    appContext,
-//                    get() as ReminderDataSource
-//                )
-//            }
-//            single { RemindersLocalRepository(get()) as ReminderDataSource }
-//            single { LocalDB.createRemindersDao(appContext) }
-//        }
-//        //declare a new koin module
-//        startKoin {
-//            modules(listOf(myModule))
-//        }
-//        //Get our real repository
-//        repository = get()
-//
-//        //clear the data to start fresh
-//        runBlocking {
-//            repository.deleteAllReminders()
-//        }
-//    }
-//
-//
-//    @get:Rule
-//    val activityRule = ActivityTestRule(RemindersActivity::class.java)
-//
-////    private var remindersActivity: RemindersActivity? = null
-////    var monitor: Instrumentation.ActivityMonitor =
-////        getInstrumentation().addMonitor(SecondActivity::class.java.getName(), null, false)
-//
-////    @Before
-////    @kotlin.jvm.Throws(Exception::class)
-////    fun setUp() {
-////        remindersActivity = mActivityTestRule.getActivity()
-////    }
-//
-//
-//    @Test
-//fun test_displayToast_returnTrue(){
-//    // if toast is displayed
-//    onView(withText(R.string.reminder_saved)).inRoot(ToastMatcher()).check(matches(isDisplayed()))
-//        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not((activityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
-//
-////        onView(withText(textId)).inRoot(MobileViewMatchers.isToast()).check(matches(isDisplayed()));
-//
-//
-////        onView(withText(R.string.reminder_saved))
-////            .inRoot(withDecorView(not(activityRule.getActivity().window.decorView)))
-////            .check(matches(isDisplayed()))
-////        onView(withText(R.string.reminder_saved))
-////            .inRoot(isFocusable())
-////            .check(matches(not(isDisplayed())))
-//
-//
-//    }
-//
-////    TODO: add End to End testing to the app
-//
-//
-//
-//}

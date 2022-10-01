@@ -93,7 +93,7 @@ fun DataBindingIdlingResource.monitorActivity(
  */
 fun DataBindingIdlingResource.monitorFragment(fragmentScenario: FragmentScenario<Fragment>) {
     fragmentScenario.onFragment(
-        FragmentScenario.FragmentAction { fragment ->
+        { fragment ->
             activity = fragment.requireActivity()
         }
     )
