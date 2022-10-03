@@ -35,7 +35,10 @@ import org.koin.android.ext.android.inject
 import java.util.*
 private const val REQUEST_TURN_DEVICE_LOCATION_IS_ON = 29
 
-class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
+class SelectLocationFragment : BaseFragment(),OnMapReadyCallback,
+    GoogleMap.OnMyLocationClickListener,
+    GoogleMap.OnMyLocationButtonClickListener
+{
 
     private  var map: GoogleMap? = null
     private val REQUEST_LOCATION_PERMISSION = 1
@@ -133,52 +136,53 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         setMapLongClick(googleMap)
         setPoiClick(googleMap)
         setMapStyle(googleMap)
-//        enableMyLocation(googleMap)
+        googleMap.setOnMyLocationButtonClickListener(this)
+//        googleMap.setOnMyLocationClickListener(this)
         checkPermissionsAndStartGeofencing()
 
 
     }
-    @SuppressLint("MissingPermission")
-    private fun enableMyLocation(map: GoogleMap) {
-
-        if ((ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
-        ) {
-            map.isMyLocationEnabled = true
-            val locationResult =
-                LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
-            locationResult.addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    // Set the map's camera position to the current location of the device.
-                    if (task.result != null) {
-                        lastKnownLocation = task.result!!
-                        map.moveCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    lastKnownLocation!!.latitude,
-                                    lastKnownLocation!!.longitude
-                                ),
-                                zoomLevel.toFloat()
-                            )
-                        )
-                    }
-                } else {
-                    Log.d("TAG", "Current location is null. Using defaults.")
-                    Log.e("TAG", "Exception: %s", task.exception)
-                    map.moveCamera(
-                        CameraUpdateFactory
-                            .newLatLngZoom(homeLatLng, zoomLevel.toFloat())
-                    )
-                    map.uiSettings?.isMyLocationButtonEnabled = false
-                }
-            }
-        }
-    }
+//    @SuppressLint("MissingPermission")
+//    private fun enableMyLocation(map: GoogleMap) {
+//
+//        if ((ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.ACCESS_FINE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) == PackageManager.PERMISSION_GRANTED)
+//        ) {
+//            map.isMyLocationEnabled = true
+//            val locationResult =
+//                LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
+//            locationResult.addOnCompleteListener(requireActivity()) { task ->
+//                if (task.isSuccessful) {
+//                    // Set the map's camera position to the current location of the device.
+//                    if (task.result != null) {
+//                        lastKnownLocation = task.result!!
+//                        map.moveCamera(
+//                            CameraUpdateFactory.newLatLngZoom(
+//                                LatLng(
+//                                    lastKnownLocation!!.latitude,
+//                                    lastKnownLocation!!.longitude
+//                                ),
+//                                zoomLevel.toFloat()
+//                            )
+//                        )
+//                    }
+//                } else {
+//                    Log.d("TAG", "Current location is null. Using defaults.")
+//                    Log.e("TAG", "Exception: %s", task.exception)
+//                    map.moveCamera(
+//                        CameraUpdateFactory
+//                            .newLatLngZoom(homeLatLng, zoomLevel.toFloat())
+//                    )
+//                    map.uiSettings?.isMyLocationButtonEnabled = false
+//                }
+//            }
+//        }
+//    }
 
     //to show the place details
     private fun setPoiClick(map: GoogleMap) {
@@ -247,7 +251,6 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         Log.e("TAG", "onResume")
-//        checkDeviceLocationSettingsAndStartGeofence()
     }
 
     override fun onDestroy() {
@@ -255,6 +258,16 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
         Log.e("TAG", "onDestroy")
 
     }
+
+    @SuppressLint("MissingPermission")
+    override fun onMyLocationButtonClick(): Boolean {
+        checkDeviceLocationSettingsAndStartGeofence()
+//        map!!.isMyLocationEnabled=true
+        // Return false so that we don't consume the event and the default behavior still occurs
+        // (the camera animates to the user's current position).
+        return false
+    }
+
 
 
     @SuppressLint("MissingPermission")
@@ -284,7 +297,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                     binding.selectLocationFragment,
                     R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
                 ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettingsAndStartGeofence()
+//                    checkDeviceLocationSettingsAndStartGeofence()
                 }.show()
             }
         }
@@ -304,10 +317,10 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                                 map!!.moveCamera(
                                     CameraUpdateFactory.newLatLngZoom(
                                         LatLng(
-                                            lastKnownLocation!!.latitude,
-                                            lastKnownLocation!!.longitude
+                                            lastKnownLocation.latitude,
+                                            lastKnownLocation.longitude
                                         ),
-                                        zoomLevel.toFloat()
+                                        zoomLevel
                                     )
                                 )
 
@@ -316,9 +329,8 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                             Log.e("TAG", "Exception: %s", location.exception)
                             map!!.moveCamera(
                                 CameraUpdateFactory
-                                    .newLatLngZoom(homeLatLng, zoomLevel.toFloat())
+                                    .newLatLngZoom(homeLatLng, zoomLevel)
                             )
-                            map!!.uiSettings?.isMyLocationButtonEnabled = false
                         }
                     }
                 }
@@ -332,7 +344,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                     binding.selectLocationFragment,
                     R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
                 ).setAction(android.R.string.ok) {
-                    checkDeviceLocationSettingsAndStartGeofence()
+//                    checkDeviceLocationSettingsAndStartGeofence()
                 }.show()
 
             }
@@ -358,7 +370,9 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-                    // Background Location Permission is granted so do your work here
+
+                    map!!.isMyLocationEnabled = true
+            // Background Location Permission is granted so do your work here
                     checkDeviceLocationSettingsAndStartGeofence()
 
         } else {
@@ -370,6 +384,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
     private fun askForFineLocationPermission() {
         fineLocationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
+    @SuppressLint("MissingPermission")
     val fineLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission())
     { isGranted ->
@@ -377,8 +392,11 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
             // Do if the permission is granted
             Log.d("TAG", "ACCESS_FINE_LOCATION isGranted")
             if(runningROrLater) {
-                map?.let { checkPermissionsAndStartGeofencing() }
+                map?.let {
+                    checkPermissionsAndStartGeofencing()
+                }
             }else{
+                map!!.isMyLocationEnabled = true
                 checkDeviceLocationSettingsAndStartGeofence()
             }
 
@@ -394,6 +412,11 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
 
         }
+    }
+
+    override fun onMyLocationClick(location: Location) {
+        Toast.makeText(context, "Current location:\n$location", Toast.LENGTH_LONG)
+            .show()
     }
 
 }
