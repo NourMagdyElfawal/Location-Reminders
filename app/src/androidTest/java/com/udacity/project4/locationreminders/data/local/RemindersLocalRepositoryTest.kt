@@ -85,4 +85,20 @@ fun deleteListRemiders_returnEmptyList()=mainCoroutineRule.runBlockingTest {
 
 }
 
+  @Test
+  fun getEmptyReminderWithWrongId_returnError()=mainCoroutineRule.runBlockingTest {
+      reminderLocalRepository.saveReminder(reminder1)
+      reminderLocalRepository.saveReminder(reminder2)
+
+      reminderLocalRepository.deleteAllReminders()
+
+      val result=reminderLocalRepository.getReminder(reminder1.id)
+
+
+      assertThat(result is Result.Error).isTrue()
+      result as Result.Error
+        assertThat(result.message).isEqualTo("Error")
+
+  }
+
 }
