@@ -142,47 +142,6 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback,
 
 
     }
-//    @SuppressLint("MissingPermission")
-//    private fun enableMyLocation(map: GoogleMap) {
-//
-//        if ((ContextCompat.checkSelfPermission(
-//                requireContext(),
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
-//                requireContext(),
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) == PackageManager.PERMISSION_GRANTED)
-//        ) {
-//            map.isMyLocationEnabled = true
-//            val locationResult =
-//                LocationServices.getFusedLocationProviderClient(requireContext()).lastLocation
-//            locationResult.addOnCompleteListener(requireActivity()) { task ->
-//                if (task.isSuccessful) {
-//                    // Set the map's camera position to the current location of the device.
-//                    if (task.result != null) {
-//                        lastKnownLocation = task.result!!
-//                        map.moveCamera(
-//                            CameraUpdateFactory.newLatLngZoom(
-//                                LatLng(
-//                                    lastKnownLocation!!.latitude,
-//                                    lastKnownLocation!!.longitude
-//                                ),
-//                                zoomLevel.toFloat()
-//                            )
-//                        )
-//                    }
-//                } else {
-//                    Log.d("TAG", "Current location is null. Using defaults.")
-//                    Log.e("TAG", "Exception: %s", task.exception)
-//                    map.moveCamera(
-//                        CameraUpdateFactory
-//                            .newLatLngZoom(homeLatLng, zoomLevel.toFloat())
-//                    )
-//                    map.uiSettings?.isMyLocationButtonEnabled = false
-//                }
-//            }
-//        }
-//    }
 
     //to show the place details
     private fun setPoiClick(map: GoogleMap) {
@@ -405,7 +364,7 @@ class SelectLocationFragment : BaseFragment(),OnMapReadyCallback,
             Log.d("TAG", "ACCESS_FINE_LOCATION isNotGranted")
             Snackbar.make(
                 binding.selectLocationFragment,
-                R.string.permission_denied_explanation, Snackbar.LENGTH_INDEFINITE
+                R.string.permission_denied_explanation, Snackbar.LENGTH_SHORT
             ).setAction(android.R.string.ok) {
                 askForFineLocationPermission()
             }.show()
