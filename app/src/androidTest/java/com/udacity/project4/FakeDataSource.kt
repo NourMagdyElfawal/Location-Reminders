@@ -21,8 +21,6 @@ class FakeDataSource(private var reminderDTOList: MutableList<ReminderDTO> = mut
         }
         reminderDTOList?.let { return Result.Success(ArrayList(it)) }
 
-        return Result.Error("Error")
-
     }
     override suspend fun saveReminder(reminder: ReminderDTO) {
         reminderDTOList.add(reminder)
@@ -30,7 +28,7 @@ class FakeDataSource(private var reminderDTOList: MutableList<ReminderDTO> = mut
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         return if (shouldReturnError) {
-            Result.Error("Error")
+            Result.Error("Exception error message")
         } else {
 
             val reminderDTO = reminderDTOList.firstOrNull {
